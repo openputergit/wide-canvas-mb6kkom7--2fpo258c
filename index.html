@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCE Interactive Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        /* Neomorphism Theme */
+        :root {
+            --primary: #209d77;
+            --secondary: #195685;
+            --bg: #e0e5ec;
+            --shadow: 8px 8px 16px #c1c6cc, -8px -8px 16px #ffffff;
+            --inset-shadow: inset 4px 4px 8px #c1c6cc, inset -4px -4px 8px #ffffff;
+        }
+
+        body {
+            background: var(--bg);
+        }
+
+        .neo-card {
+            background: var(--bg);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .neo-card:hover {
+            box-shadow: var(--inset-shadow);
+        }
+
+        .neo-button {
+            background: var(--bg);
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .neo-button:active {
+            box-shadow: var(--inset-shadow);
+            transform: scale(0.98);
+        }
+
+        .neo-input {
+            background: var(--bg);
+            box-shadow: var(--inset-shadow);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            border-radius: 15px;
+            background: var(--bg);
+            box-shadow: var(--inset-shadow);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-[#209d77] to-[#195685] text-white p-6 neo-card">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
+            <div class="flex items-center mb-4 md:mb-0">
+                <img src="https://www.mcehassan.ac.in/assets/images/logo.png" alt="MCE Logo" class="h-16 mr-4 neo-card p-2">
+                <h1 class="text-2xl md:text-3xl font-bold">Malnad College of Engineering</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="p-4">
+        <div class="container mx-auto">
+            <ul class="flex flex-wrap justify-center gap-4">
+                <li><button onclick="showSection('aibot')" class="neo-button px-6 py-3 rounded-lg text-[#209d77] font-semibold hover:text-[#195685]">AI Bot</button></li>
+                <li><button onclick="showSection('quiz')" class="neo-button px-6 py-3 rounded-lg text-[#209d77] font-semibold hover:text-[#195685]">Quiz</button></li>
+                <li><button onclick="showSection('future')" class="neo-button px-6 py-3 rounded-lg text-[#209d77] font-semibold hover:text-[#195685]">Future Course</button></li>
+                <li><button onclick="showSection('higher')" class="neo-button px-6 py-3 rounded-lg text-[#209d77] font-semibold hover:text-[#195685]">Higher Studies</button></li>
+                <li><button onclick="showSection('admin')" class="neo-button px-6 py-3 rounded-lg text-[#209d77] font-semibold hover:text-[#195685]">Admin</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4">
+        <!-- AI Bot Section -->
+        <section id="aibot" class="hidden">
+            <div class="neo-card p-6">
+                <h2 class="text-2xl font-bold mb-4 text-[#209d77]">AI-MCE Bot</h2>
+                <div class="chat-container mb-4" id="chatMessages"></div>
+                <div class="flex gap-2">
+                    <input type="text" id="userMessage" class="neo-input flex-1" placeholder="Ask me anything about MCE...">
+                    <button onclick="sendMessage()" class="neo-button px-6 py-2 rounded-lg text-[#209d77] font-semibold">Send</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz" class="hidden">
+            <div class="neo-card p-6">
+                <h2 class="text-2xl font-bold mb-4 text-[#209d77]">MCE-Quiz!!</h2>
+                <div id="branchSelection" class="mb-4">
+                    <select id="branchSelect" class="neo-input w-full mb-4">
+                        <option value="">Select Branch</option>
+                        <option value="cse">CSE/ISE</option>
+                        <option value="eee">EEE</option>
+                        <option value="ece">ECE</option>
+                        <option value="eie">EIE</option>
+                        <option value="mech">Mechanical</option>
+                        <option value="civil">Civil</option>
+                    </select>
+                    <button onclick="startQuiz()" class="neo-button px-6 py-2 rounded-lg text-[#209d77] font-semibold">Start Quiz</button>
+                </div>
+                <div id="quizContent" class="hidden"></div>
+            </div>
+        </section>
+
+        <!-- Future Course Section -->
+        <section id="future" class="hidden">
+            <div class="neo-card p-6">
+                <h2 class="text-2xl font-bold mb-4 text-[#209d77]">Future Course Advisor</h2>
+                <div class="chat-container mb-4" id="futureBot"></div>
+                <div id="optionsContainer" class="flex flex-wrap gap-2"></div>
+            </div>
+        </section>
+
+        <!-- Higher Studies Section -->
+        <section id="higher" class="hidden">
+            <div class="neo-card p-6">
+                <h2 class="text-2xl font-bold mb-4 text-[#209d77]">Higher Studies Guidance</h2>
+                <div class="flowchart p-4">
+                    <div class="flex flex-col items-center gap-6">
+                        <div class="neo-card p-4 text-[#209d77] font-bold">Bachelor's Degree</div>
+                        <i class="bi bi-arrow-down text-2xl text-[#209d77]"></i>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                            <div class="neo-card p-4 text-[#209d77] font-bold text-center">M.Tech</div>
+                            <div class="neo-card p-4 text-[#209d77] font-bold text-center">MBA</div>
+                            <div class="neo-card p-4 text-[#209d77] font-bold text-center">MS Abroad</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Section -->
+        <section id="admin" class="hidden">
+            <div class="neo-card p-6">
+                <div id="adminLogin" class="max-w-md mx-auto">
+                    <h2 class="text-2xl font-bold mb-4 text-[#209d77]">Admin Login</h2>
+                    <input type="text" id="adminUsername" placeholder="Username" class="neo-input w-full mb-4">
+                    <input type="password" id="adminPassword" placeholder="Password" class="neo-input w-full mb-4">
+                    <button onclick="adminLogin()" class="neo-button w-full px-6 py-2 rounded-lg text-[#209d77] font-semibold">Login</button>
+                </div>
+                <div id="adminPanel" class="hidden">
+                    <h2 class="text-2xl font-bold mb-4 text-[#209d77]">Admin Panel</h2>
+                    <div class="mb-4">
+                        <select id="adminBranchSelect" class="neo-input w-full mb-4">
+                            <option value="">Select Branch</option>
+                            <option value="cse">CSE/ISE</option>
+                            <option value="eee">EEE</option>
+                            <option value="ece">ECE</option>
+                            <option value="eie">EIE</option>
+                            <option value="mech">Mechanical</option>
+                            <option value="civil">Civil</option>
+                        </select>
+                        <input type="text" id="questionInput" placeholder="Question" class="neo-input w-full mb-4">
+                        <input type="text" id="option1" placeholder="Option 1" class="neo-input w-full mb-2">
+                        <input type="text" id="option2" placeholder="Option 2" class="neo-input w-full mb-2">
+                        <input type="text" id="option3" placeholder="Option 3" class="neo-input w-full mb-2">
+                        <input type="text" id="option4" placeholder="Option 4" class="neo-input w-full mb-2">
+                        <input type="text" id="correctAnswer" placeholder="Correct Answer" class="neo-input w-full mb-4">
+                        <button onclick="addQuestion()" class="neo-button px-6 py-2 rounded-lg text-[#209d77] font-semibold">Add Question</button>
+                    </div>
+                    <div id="questionsList" class="mt-4"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Your existing JavaScript code here
+        // (The JavaScript code remains the same as in the previous version)
+        // Initialize MongoDB connection with unique app slug
+        const appSlug = 'mce-portal-' + Math.random().toString(36).substring(7);
+        let currentUser = localStorage.getItem('userId') || 'user-' + Math.random().toString(36).substring(7);
+        localStorage.setItem('userId', currentUser);
+
+        // Show/Hide Sections
+        function showSection(sectionId) {
+            document.querySelectorAll('main section').forEach(section => section.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        // AI Bot Implementation
+        async function sendMessage() {
+            const userInput = document.getElementById('userMessage').value;
+            if (!userInput.trim()) return;
+
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML += `<div class="mb-2 neo-card p-2"><strong>You:</strong> ${userInput}</div>`;
+
+            try {
+                const response = await fetch('https://r0c8kgwocscg8gsokogwwsw4.zetaverse.one/ai', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer cTwcq8gpQgNoz67SpA2LBw8jxvH3',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messages: [{
+                            role: 'user',
+                            content: [{ type: 'text', text: userInput }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                chatMessages.innerHTML += `<div class="mb-2 neo-card p-2"><strong>AI-MCE:</strong> ${data.message}</div>`;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+            document.getElementById('userMessage').value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Quiz Implementation
+        async function startQuiz() {
+            const branch = document.getElementById('branchSelect').value;
+            if (!branch) return;
+
+            try {
+                const response = await fetch('https://r0c8kgwocscg8gsokogwwsw4.zetaverse.one/mongodb', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer cTwcq8gpQgNoz67SpA2LBw8jxvH3',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        appSlug,
+                        action: 'read',
+                        collection: `questions_${branch}`,
+                        conditions: {}
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    const questions = data.result.read;
+                    displayQuiz(questions.slice(0, 5));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function displayQuiz(questions) {
+            const quizContent = document.getElementById('quizContent');
+            quizContent.classList.remove('hidden');
+            document.getElementById('branchSelection').classList.add('hidden');
+
+            let html = '';
+            questions.forEach((q, index) => {
+                html += `
+                    <div class="mb-4 neo-card p-4">
+                        <p class="font-bold mb-2">${index + 1}. ${q.data.question}</p>
+                        ${q.data.options.map(option => `
+                            <label class="block mb-2">
+                                <input type="radio" name="q${index}" value="${option}">
+                                ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+            });
+
+            html += '<button onclick="submitQuiz()" class="neo-button px-6 py-2 rounded-lg text-[#209d77] font-semibold">Submit</button>';
+            quizContent.innerHTML = html;
+        }
+
+        // Admin Implementation
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === 'admin123' && password === 'admin123') {
+                document.getElementById('adminLogin').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                loadQuestions();
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+
+        async function addQuestion() {
+            const branch = document.getElementById('adminBranchSelect').value;
+            const question = document.getElementById('questionInput').value;
+            const options = [
+                document.getElementById('option1').value,
+                document.getElementById('option2').value,
+                document.getElementById('option3').value,
+                document.getElementById('option4').value
+            ];
+            const correctAnswer = document.getElementById('correctAnswer').value;
+
+            if (!branch || !question || options.some(opt => !opt) || !correctAnswer) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('https://r0c8kgwocscg8gsokogwwsw4.zetaverse.one/mongodb', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer cTwcq8gpQgNoz67SpA2LBw8jxvH3',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        appSlug,
+                        action: 'create',
+                        collection: `questions_${branch}`,
+                        data: {
+                            question,
+                            options,
+                            correctAnswer
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Question added successfully');
+                    loadQuestions();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadQuestions() {
+            const branch = document.getElementById('adminBranchSelect').value;
+            if (!branch) return;
+
+            try {
+                const response = await fetch('https://r0c8kgwocscg8gsokogwwsw4.zetaverse.one/mongodb', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer cTwcq8gpQgNoz67SpA2LBw8jxvH3',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        appSlug,
+                        action: 'read',
+                        collection: `questions_${branch}`,
+                        conditions: {}
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    displayQuestions(data.result.read);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function displayQuestions(questions) {
+            const questionsList = document.getElementById('questionsList');
+            questionsList.innerHTML = questions.map(q => `
+                <div class="neo-card p-4 mb-2">
+                    <p><strong>Question:</strong> ${q.data.question}</p>
+                    <p><strong>Options:</strong> ${q.data.options.join(', ')}</p>
+                    <p><strong>Correct Answer:</strong> ${q.data.correctAnswer}</p>
+                </div>
+            `).join('');
+        }
+
+        // Show AI Bot section by default
+        showSection('aibot');
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
